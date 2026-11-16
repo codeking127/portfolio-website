@@ -337,6 +337,30 @@ img { max-width: 100%; }
 /* animals */
 .ascii { font-family: var(--mono); font-size: 12px; line-height: 1.25; color: var(--ink-2); background: var(--win-bar); border-radius: 8px; padding: 10px 12px; margin: 10px 0; white-space: pre; overflow-x: auto; }
 
+/* login notification: a macOS-style banner that slides in from the top right */
+.notif {
+  position: fixed; z-index: 60; top: calc(40px + env(safe-area-inset-top, 0px)); right: max(16px, env(safe-area-inset-right, 0px));
+  width: min(360px, calc(100vw - 32px)); display: flex; align-items: stretch;
+  background: color-mix(in srgb, var(--win) 80%, transparent); backdrop-filter: blur(24px) saturate(1.6);
+  border-radius: 16px; box-shadow: 0 0 0 .5px rgba(0, 0, 0, .12), 0 14px 40px -12px rgba(0, 0, 0, .45);
+}
+.notif.in { animation: notifIn .55s cubic-bezier(.2, .9, .3, 1.15) both; }
+.notif.out { animation: notifOut .4s ease-in both; }
+@keyframes notifIn { from { transform: translateY(-120%) scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes notifOut { to { transform: translateX(110%); opacity: 0; } }
+.notif-main { flex: 1; display: flex; gap: 12px; align-items: center; text-align: left; background: none; border: 0; padding: 12px 6px 12px 14px; cursor: pointer; border-radius: 16px; min-width: 0; }
+.notif-main:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.notif-icon { width: 38px; height: 38px; border-radius: 9px; background: #fff; display: grid; place-items: center; flex: none; box-shadow: 0 1px 3px rgba(0, 0, 0, .2); }
+.notif-icon svg { width: 26px; height: 26px; }
+.notif-text { display: flex; flex-direction: column; min-width: 0; }
+.notif-top { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--ink-3); }
+.notif-top b { font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.notif-title { font-weight: 600; font-size: 14px; color: var(--ink); line-height: 1.3; }
+.notif-body { font-size: 13px; color: var(--ink-2); }
+.notif-close { width: 28px; background: none; border: 0; color: var(--ink-3); font-size: 18px; cursor: pointer; border-radius: 0 16px 16px 0; }
+.notif-close:hover { color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .notif.in, .notif.out { animation-duration: .01s; } }
+
 /* dock */
 .dock {
   position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 40; display: flex; gap: 10px; padding: 8px 10px;

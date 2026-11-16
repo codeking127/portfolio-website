@@ -35,6 +35,15 @@ export const intro = {
   ] as Segment[],
 };
 
+// The banner that slides in when the site opens. Clicking it opens about.txt.
+export const notification = {
+  app: "aryan.os",
+  title: "You have logged into Aryan's Mac",
+  body: "Click to open about.txt and say hi.",
+  delayMs: 900, // wait before it slides in
+  visibleMs: 3000, // how long it stays (hovering keeps it open)
+};
+
 export const about = {
   avatar: { src: "/assets/avatar.jpg", alt: "Aryan after finishing a 10K", zoom: "/assets/run-medal.jpg", cap: "10K done, medal on." },
   title: "Hi, I'm Aryan.",

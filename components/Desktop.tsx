@@ -5,6 +5,7 @@ import { intro, links } from "@/data/profile";
 import { DesktopContext, type DesktopApi, type PhotoInfo, type WinId } from "./desktop-context";
 import Window, { type WinState } from "./Window";
 import Dock from "./Dock";
+import LoginNotification from "./LoginNotification";
 import Crane from "./Crane";
 import Clock from "./Clock";
 import RoleFlip from "./RoleFlip";
@@ -33,14 +34,10 @@ const ROLES: [WinId, string][] = [
   ["code", "⌘ Writes code"], ["journey", "Journey"], ["run", "Runs"], ["music", "Plays instruments"],
   ["origami", "Folds origami"], ["lang", "Learns languages"], ["animals", "Loves animals"],
 ];
-// Only these sit on the desktop; everything else lives in the dock below.
-const ICONS: [WinId, string, "doc" | "fold"][] = [
-  ["about", "about.txt", "doc"], ["journey", "Journey", "fold"], ["code", "Code", "fold"],
-];
 
 const initialWins = () =>
   Object.fromEntries(
-    IDS.map((id) => [id, { status: id === "about" ? "open" : "closed", animate: false, z: id === "about" ? 11 : 10, left: WINDOWS[id].left, top: WINDOWS[id].top, nonce: 0, max: false }]),
+    IDS.map((id) => [id, { status: "closed", animate: false, z: 10, left: WINDOWS[id].left, top: WINDOWS[id].top, nonce: 0, max: false }]),
   ) as Record<WinId, WinState>;
 
 const isPhone = () => window.matchMedia("(max-width: 900px)").matches;
@@ -148,15 +145,6 @@ export default function Desktop() {
           <div className="cap">Click the crane</div>
         </div>
 
-        <div className="icons">
-          {ICONS.map(([id, label, kind]) => (
-            <button key={id} className="icon" onClick={() => open(id)}>
-              <span className={kind} />
-              {label}
-            </button>
-          ))}
-        </div>
-
         {IDS.filter((id): id is Exclude<WinId, "photo"> => id !== "photo").map((id) => (
           <Window
             key={`${id}-${wins[id].nonce}`}
@@ -194,6 +182,7 @@ export default function Desktop() {
       </main>
 
       <Dock />
+      <LoginNotification onOpen={() => open("about")} />
     </DesktopContext.Provider>
   );
 }
