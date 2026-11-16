@@ -6,16 +6,26 @@ const display = Bricolage_Grotesque({ subsets: ["latin"], weight: ["600", "800"]
 const body = Instrument_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-body" });
 const mono = Geist_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-mono" });
 
-const site = process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000";
+// The public address, used to build full links for the share preview. Local runs use localhost.
+const site = process.env.VERCEL ? "https://aryanjain-dev.vercel.app" : "http://localhost:3000";
+const description = "Software engineer at HSBC building Python automation. Runner, musician, origami folder and language learner.";
 
+// The share preview picture comes from app/opengraph-image.tsx (a designed card, not a personal photo).
 export const metadata: Metadata = {
   metadataBase: new URL(site),
   title: "Aryan Jain",
-  description: "Software developer at HSBC. Runner, musician, origami folder and language learner.",
+  description,
   openGraph: {
-    title: "Aryan Jain",
-    description: "Software developer at HSBC. Runner, musician, origami folder and language learner.",
-    images: ["/assets/chennai-demo.jpg"],
+    title: "Aryan Jain · aryan.os",
+    description,
+    url: site,
+    siteName: "aryan.os",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Aryan Jain · aryan.os",
+    description,
   },
 };
 
