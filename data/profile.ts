@@ -221,25 +221,68 @@ export const moreProjects = [
   { name: "Javascript30", text: "30 small builds in vanilla JS", stack: "JavaScript", code: "https://github.com/AryanJain22/Javascript30" },
 ];
 
-export type JourneyItem = {
+// ── Journey map ───────────────────────────────────────────────
+// The map is Wikimedia's "India outline" (CC BY-SA 3.0; Theo10011, from Amog's 10-India_k.svg).
+// x / y are each pin's position on that image, in % of its width / height.
+export type PlaceId = "himachal" | "gurugram" | "bhopal" | "hyderabad";
+
+export type JourneyStop = {
+  id: PlaceId;
+  place: string;
+  x: number;
+  y: number;
   when: string;
   title: string;
   text: string;
-  kind?: "now" | "highlight";
-  photos?: { src: string; alt: string; cap: string; w: number; h: number }[];
+  tag: string; // shown where the plane lands, e.g. "College · Bhopal"
+  now?: boolean;
 };
 
-export const journey: JourneyItem[] = [
-  { when: "Now", title: "Software Engineer · HSBC", text: "Python automation for financial data teams.", kind: "now" },
+export const journey: JourneyStop[] = [
   {
-    when: "Recently · Chennai",
-    title: "Demoed CORE to leadership",
-    text: "A business trip to Finance Inspire in Chennai, where I demoed CORE, the no-code platform I built, live on stage to senior leadership.",
-    kind: "highlight",
+    id: "himachal",
+    place: "Himachal Pradesh",
+    x: 31.0,
+    y: 21.0,
+    when: "School",
+    title: "VR Public School",
+    text: "Where it all began.",
+    tag: "Schooling · Himachal Pradesh",
   },
-  { when: "At HSBC", title: "Built CORE", text: "A no-code platform for Excel automation, now used by 100+ people." },
-  { when: "Before", title: "B.Tech CSE · VIT Bhopal", text: "Where the coding started." },
+  {
+    id: "bhopal",
+    place: "Bhopal",
+    x: 31.9,
+    y: 46.1,
+    when: "College",
+    title: "B.Tech CSE · VIT Bhopal",
+    text: "Computer science, and where the coding really started: UnderBelly, Suraksha Setu and 100 days of DSA.",
+    tag: "College · Bhopal",
+  },
+  {
+    id: "gurugram",
+    place: "Gurugram",
+    x: 30.6,
+    y: 29.5,
+    when: "Internship",
+    title: "Intern · HSBC",
+    text: "My first stint at HSBC, before joining full time.",
+    tag: "Internship · HSBC Gurugram",
+  },
+  {
+    id: "hyderabad",
+    place: "Hyderabad",
+    x: 35.4,
+    y: 64.9,
+    when: "Now",
+    title: "Software Engineer · HSBC",
+    text: "Full time, building Python automation for financial data teams. Built CORE here, a no-code platform now used by 100+ people, and recently demoed it live to senior leadership in Chennai.",
+    tag: "Full time · HSBC Hyderabad",
+    now: true,
+  },
 ];
+// The flight path visits the stops in this order (the order things happened).
+export const route: PlaceId[] = ["himachal", "bhopal", "gurugram", "hyderabad"];
 
 export const instruments = [
   { name: "Casio", note: "Since childhood · try it below", level: 100 },

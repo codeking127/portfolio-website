@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { about, animals, codeIntro, instruments, journey, languages, links, moreProjects, musicVideos, origami, projects, running, type Project } from "@/data/profile";
+import { about, animals, codeIntro, instruments, languages, links, moreProjects, musicVideos, origami, projects, running, type Project } from "@/data/profile";
 import { useDesktop, type WinId } from "./desktop-context";
 import Photo from "./Photo";
 import Crane, { MODELS } from "./Crane";
@@ -8,6 +8,7 @@ import Image from "next/image";
 import Casio from "./Casio";
 import RunChart from "./RunChart";
 import Greeting from "./Greeting";
+import JourneyMap from "./JourneyMap";
 
 export const ext = { target: "_blank", rel: "noopener noreferrer" } as const;
 
@@ -277,23 +278,12 @@ export function Journey() {
   return (
     <>
       <h3>Where I&apos;ve been</h3>
-      {journey.map((j) => (
-        <div className={`jitem ${j.kind ?? ""}`} key={j.title}>
-          <span className="dot" />
-          <div>
-            <div className="when">{j.when}</div>
-            <h4>{j.title}</h4>
-            <p className="muted">{j.text}</p>
-            {j.photos && (
-              <div className="jpics">
-                {j.photos.map((p) => <Photo key={p.src} {...p} sizes="240px" />)}
-              </div>
-            )}
-          </div>
-        </div>
-      ))}
-      <p className="muted" style={{ margin: "10px 0 0" }}>
-        More on <a href={links.linkedin} {...ext}>LinkedIn ↗</a>
+      <JourneyMap />
+      <p className="map-credit">
+        Map:{" "}
+        <a href="https://commons.wikimedia.org/wiki/File:India_outline.svg" {...ext}>India outline</a> by Theo10011 and Amog,{" "}
+        <a href="https://creativecommons.org/licenses/by-sa/3.0/" {...ext}>CC BY-SA 3.0</a>. More on{" "}
+        <a href={links.linkedin} {...ext}>LinkedIn ↗</a>
       </p>
     </>
   );
