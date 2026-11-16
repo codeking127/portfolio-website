@@ -40,7 +40,7 @@ const ICONS: [WinId, string, "doc" | "fold"][] = [
 
 const initialWins = () =>
   Object.fromEntries(
-    IDS.map((id) => [id, { status: id === "about" ? "open" : "closed", animate: false, z: id === "about" ? 11 : 10, left: WINDOWS[id].left, top: WINDOWS[id].top, nonce: 0 }]),
+    IDS.map((id) => [id, { status: id === "about" ? "open" : "closed", animate: false, z: id === "about" ? 11 : 10, left: WINDOWS[id].left, top: WINDOWS[id].top, nonce: 0, max: false }]),
   ) as Record<WinId, WinState>;
 
 const isPhone = () => window.matchMedia("(max-width: 900px)").matches;
@@ -167,6 +167,7 @@ export default function Desktop() {
             onFocus={() => patch(id, { z: ++zTop.current })}
             onFolded={() => patch(id, { status: "closed" })}
             onMove={(l, t) => patch(id, { left: l + "px", top: t + "px" })}
+            onToggleMax={() => setWins((w) => ({ ...w, [id]: { ...w[id], max: !w[id].max, z: ++zTop.current } }))}
           >
             {content[id]}
           </Window>
@@ -181,6 +182,7 @@ export default function Desktop() {
           onFocus={() => patch("photo", { z: ++zTop.current })}
           onFolded={() => patch("photo", { status: "closed" })}
           onMove={(l, t) => patch("photo", { left: l + "px", top: t + "px" })}
+          onToggleMax={() => setWins((w) => ({ ...w, photo: { ...w.photo, max: !w.photo.max, z: ++zTop.current } }))}
         >
           {photo && (
             <>

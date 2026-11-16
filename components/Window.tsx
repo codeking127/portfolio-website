@@ -10,6 +10,7 @@ export type WinState = {
   left: string; // css value: "52%" by default, px once dragged
   top: string;
   nonce: number; // bumping it remounts the window so the unfold plays again
+  max: boolean; // expanded to the full desktop width (green button / double-click title bar)
 };
 
 type Props = {
@@ -21,19 +22,20 @@ type Props = {
   onFocus: () => void;
   onFolded: () => void;
   onMove: (left: number, top: number) => void;
+  onToggleMax: () => void;
   children: React.ReactNode;
 };
 
 const isPhone = () => window.matchMedia("(max-width: 900px)").matches;
 
-export default function Window({ id, title, state, className = "", onClose, onFocus, onFolded, onMove, children }: Props) {
+export default function Window({ id, title, state, className = "", onClose, onFocus, onFolded, onMove, onToggleMax, children }: Props) {
   const ref = useRef<HTMLElement>(null);
   if (state.status === "closed") return null;
 
   const anim = state.status === "folding" ? "folding" : state.animate ? "unfold" : "";
 
   const startDrag = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (isPhone() || (e.target as HTMLElement).closest("button")) return;
+    if (isPhone() || state.max || (e.target as HTMLElement).closest("button")) return;
     const win = ref.current;
     const desk = win?.parentElement;
     if (!win || !desk) return;
@@ -63,7 +65,7 @@ export default function Window({ id, title, state, className = "", onClose, onFo
     <section
       ref={ref}
       id={`w-${id}`}
-      className={`win w-${id} ${anim} ${className}`}
+      className={`win w-${id} ${anim} ${state.max ? "max" : ""} ${className}`}
       style={{ zIndex: state.z, left: state.left, top: state.top }}
       onPointerDown={onFocus}
       onAnimationEnd={(e) => {
@@ -71,11 +73,22 @@ export default function Window({ id, title, state, className = "", onClose, onFo
       }}
       aria-label={title}
     >
-      <div className="bar" onPointerDown={startDrag}>
+      <div
+        className="bar"
+        onPointerDown={startDrag}
+        onDoubleClick={(e) => {
+          if (!(e.target as HTMLElement).closest("button")) onToggleMax();
+        }}
+      >
         <div className="lights">
-          <button aria-label={`Close ${title}`} onClick={onClose} />
-          <button aria-label={`Minimise ${title}`} onClick={onClose} />
-          <span aria-hidden="true" />
+          <button aria-label={`Close ${title}`} title="Close" onClick={onClose} />
+          <button aria-label={`Minimise ${title}`} title="Minimise" onClick={onClose} />
+          <button
+            aria-label={state.max ? `Restore ${title}` : `Expand ${title} to full width`}
+            title={state.max ? "Restore" : "Expand to full width"}
+            aria-pressed={state.max}
+            onClick={onToggleMax}
+          />
         </div>
         <span className="t">{title}</span>
       </div>

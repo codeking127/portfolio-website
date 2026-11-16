@@ -22,8 +22,8 @@ export const intro = {
   roles: ["& runner", "& musician", "& origami folder", "& language learner", "& animal lover"],
   description: [
     "I build ",
-    { text: "Python tools at HSBC", open: "code" },
-    " that turn slow, repetitive work into something people can run in a few clicks. Off the clock I'm training for the ",
+    { text: "Python automation at HSBC", open: "code" },
+    " that turns slow, repetitive work into something people can run in a few clicks. Off the clock I'm training for the ",
     { text: "Khardung La ultra", open: "run" },
     ", ",
     { text: "making music", open: "music" },
@@ -48,7 +48,7 @@ export const about = {
   // shown as a pull quote between the paragraphs
   quote: "I like finding the repeating problem behind a pile of one-off tasks, and building the thing that makes it self-serve.",
   paragraphs: [
-    "I work with financial data at HSBC, and most of my days go into Python tools. The kind that take a slow, manual process, the one somebody repeats every month in Excel, and turn it into something they can run themselves in a few clicks.",
+    "I work with financial data at HSBC, and most of my days go into Python automation. I take a slow, manual process, the one somebody repeats every month in Excel, and turn it into something they can run themselves in a few clicks.",
     "The thing I'm proudest of is CORE, a no-code automation platform that more than 100 people now use to build their own workflows without waiting on a developer. I recently travelled to Chennai to demo it live to senior leadership.",
     "I care about clean architecture and code that holds up in production. Right now I'm going deeper into system design and backend engineering.",
     "Away from the keyboard I'm training for the Khardung La ultra, playing the Casio, mouth organ, guitar and a very new flute, folding paper into cranes and flowers, and learning Japanese and French. I also stop for every dog, cat and cow I pass.",
@@ -213,10 +213,6 @@ export const journey: JourneyItem[] = [
     title: "Demoed CORE to leadership",
     text: "A business trip to Finance Inspire in Chennai, where I demoed CORE, the no-code platform I built, live on stage to senior leadership.",
     kind: "highlight",
-    photos: [
-      { src: "/assets/chennai-demo.jpg", alt: "Aryan on stage presenting CORE at Finance Inspire, Chennai", cap: "Presenting CORE live at Finance Inspire, Chennai.", w: 1000, h: 667 },
-      { src: "/assets/chennai-team.jpg", alt: "Aryan with two colleagues on stage at Finance Inspire", cap: "With the team after the demo.", w: 1000, h: 667 },
-    ],
   },
   { when: "At HSBC", title: "Built CORE", text: "A no-code platform for Excel automation, now used by 100+ people." },
   { when: "Before", title: "B.Tech CSE · VIT Bhopal", text: "Where the coding started." },
