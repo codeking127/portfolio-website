@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { notification } from "@/data/profile";
+import { chime } from "./sfx";
 
 /**
  * macOS-style banner shown once when the site loads: slides in from the top right with a soft chime,
@@ -72,36 +73,4 @@ export default function LoginNotification({ onOpen }: { onOpen: () => void }) {
       <button className="notif-close" aria-label="Dismiss notification" onClick={hide}>×</button>
     </div>
   );
-}
-
-/** A short two-note "glass" chime made with Web Audio, so no sound file is needed.
- *  Browsers may block sound until the visitor has interacted with the site; then this stays silent. */
-function chime() {
-  try {
-    const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    const ac = new Ctx();
-    const play = () => {
-      [
-        [1318.5, 0, 0.5],
-        [1760, 0.09, 0.7],
-      ].forEach(([freq, delay, len]) => {
-        const o = ac.createOscillator();
-        const g = ac.createGain();
-        o.type = "sine";
-        o.frequency.value = freq;
-        const t = ac.currentTime + delay;
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.exponentialRampToValueAtTime(0.12, t + 0.015);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + len);
-        o.connect(g).connect(ac.destination);
-        o.start(t);
-        o.stop(t + len + 0.05);
-      });
-      setTimeout(() => ac.close(), 1200);
-    };
-    if (ac.state === "running") play();
-    else ac.resume().then(() => (ac.state === "running" ? play() : ac.close())).catch(() => ac.close());
-  } catch {
-    /* no audio available */
-  }
 }

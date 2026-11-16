@@ -1,6 +1,7 @@
 "use client";
 import { links } from "@/data/profile";
 import { useDesktop, type WinId } from "./desktop-context";
+import LangIcon from "./LangIcon";
 
 const APPS: { id: WinId; label: string; bg: string; icon: React.ReactNode }[] = [
   {
@@ -21,7 +22,7 @@ const APPS: { id: WinId; label: string; bg: string; icon: React.ReactNode }[] = 
   },
   {
     id: "lang", label: "Languages", bg: "#3b55d9",
-    icon: <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"><path d="M3 5h9M7.5 3v2M5 5c0 4 3 7 6 8M10 5c-.5 4-3 7-6 9" /><path d="M13 21l4-10 4 10M14.5 17.5h5" /></svg>,
+    icon: <LangIcon />,
   },
   {
     id: "origami", label: "Origami", bg: "#fff",

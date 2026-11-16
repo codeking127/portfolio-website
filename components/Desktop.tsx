@@ -1,15 +1,18 @@
 "use client";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { intro, links } from "@/data/profile";
+import { intro } from "@/data/profile";
 import { DesktopContext, type DesktopApi, type PhotoInfo, type WinId } from "./desktop-context";
 import Window, { type WinState } from "./Window";
 import Dock from "./Dock";
 import LoginNotification from "./LoginNotification";
 import Crane from "./Crane";
-import Clock from "./Clock";
+import MenuBar from "./MenuBar";
+import AboutThisMac from "./AboutThisMac";
+import ShutDown from "./ShutDown";
+import { chime, ping } from "./sfx";
 import RoleFlip from "./RoleFlip";
-import { About, Animals, Code, Journey, Languages, Music, Origami, Runs, ext } from "./WindowContents";
+import { About, Animals, Code, Journey, Languages, Music, Origami, Runs } from "./WindowContents";
 
 // Where each window first appears (left as a share of the desktop width, top in px) and its title bar text.
 const WINDOWS: Record<WinId, { title: string; left: string; top: string }> = {
@@ -26,15 +29,6 @@ const WINDOWS: Record<WinId, { title: string; left: string; top: string }> = {
 };
 const IDS = Object.keys(WINDOWS) as WinId[];
 
-const MENU: [WinId, string][] = [
-  ["about", "About"], ["code", "Code"], ["journey", "Journey"], ["music", "Music"], ["run", "Runs"], ["lang", "Languages"],
-  ["origami", "Origami"], ["animals", "Animals"],
-];
-const ROLES: [WinId, string][] = [
-  ["code", "⌘ Writes code"], ["journey", "Journey"], ["run", "Runs"], ["music", "Plays instruments"],
-  ["origami", "Folds origami"], ["lang", "Learns languages"], ["animals", "Loves animals"],
-];
-
 const initialWins = () =>
   Object.fromEntries(
     IDS.map((id) => [id, { status: "closed", animate: false, z: 10, left: WINDOWS[id].left, top: WINDOWS[id].top, nonce: 0, max: false }]),
@@ -45,12 +39,19 @@ const isPhone = () => window.matchMedia("(max-width: 900px)").matches;
 export default function Desktop() {
   const [wins, setWins] = useState(initialWins);
   const [photo, setPhoto] = useState<PhotoInfo | null>(null);
+  const [macOpen, setMacOpen] = useState(false); // "About This Mac"
+  const [asleep, setAsleep] = useState(false); // "Shut Down…"
+  const [craneSignal, setCraneSignal] = useState(0);
   const zTop = useRef(20);
   const deskRef = useRef<HTMLElement>(null);
+  const winsRef = useRef(wins);
+  winsRef.current = wins;
 
   const patch = useCallback((id: WinId, p: Partial<WinState>) => setWins((w) => ({ ...w, [id]: { ...w[id], ...p } })), []);
 
   const open = useCallback((id: WinId) => {
+    // the music window opens with a ping (allowed here, since the visitor just clicked)
+    if (id === "music" && winsRef.current.music.status === "closed") ping();
     setWins((w) => {
       const next = { ...w };
       if (isPhone() && id !== "photo") {
@@ -81,6 +82,15 @@ export default function Desktop() {
     open("photo");
   }, [open, patch]);
 
+  const WINDOW_IDS = IDS.filter((id) => id !== "photo");
+  // "Make a mess": open every window, one after another so each plays its own entrance
+  const openAll = () => {
+    if (isPhone()) return open("about");
+    WINDOW_IDS.forEach((id, i) => setTimeout(() => open(id), i * 160));
+  };
+  // "Tidy up": close everything that's open
+  const closeAll = () => IDS.forEach((id) => { if (winsRef.current[id].status === "open") close(id); });
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") close("photo"); };
     window.addEventListener("keydown", onKey);
@@ -108,16 +118,14 @@ export default function Desktop() {
         <polygon points="0,560 420,1000 0,1000" opacity=".28" />
       </svg>
 
-      <header className="menubar">
-        <span className="logo">aryan.os</span>
-        <div className="menus">
-          {MENU.map(([id, label]) => <button key={id} onClick={() => open(id)}>{label}</button>)}
-        </div>
-        <div className="right">
-          <a href={links.linkedin} {...ext}>LinkedIn ↗</a>
-          <Clock />
-        </div>
-      </header>
+      <MenuBar
+        onAbout={() => setMacOpen(true)}
+        onMess={openAll}
+        onTidy={closeAll}
+        onFoldCrane={() => setCraneSignal((n) => n + 1)}
+        onChime={chime}
+        onShutDown={() => { setMacOpen(false); setAsleep(true); }}
+      />
 
       <main className="desk" ref={deskRef}>
         <div className="intro">
@@ -135,13 +143,10 @@ export default function Desktop() {
               ),
             )}
           </p>
-          <div className="roles">
-            {ROLES.map(([id, label]) => <button key={id + label} onClick={() => open(id)}>{label}</button>)}
-          </div>
         </div>
 
         <div className="craneWrap">
-          <Crane />
+          <Crane toggleSignal={craneSignal} />
           <div className="cap">Click the crane</div>
         </div>
 
@@ -183,6 +188,14 @@ export default function Desktop() {
 
       <Dock />
       <LoginNotification onOpen={() => open("about")} />
+      {macOpen && (
+        <AboutThisMac
+          onClose={() => setMacOpen(false)}
+          onMore={() => { setMacOpen(false); open("about"); }}
+          onProjects={() => { setMacOpen(false); open("code"); }}
+        />
+      )}
+      {asleep && <ShutDown onWake={() => { setAsleep(false); chime(); }} />}
     </DesktopContext.Provider>
   );
 }

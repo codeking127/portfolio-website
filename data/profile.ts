@@ -35,6 +35,20 @@ export const intro = {
   ] as Segment[],
 };
 
+// "About This Mac", opened from the crane menu in the top left.
+export const aboutThisMac = {
+  name: "aryan.os",
+  version: "Version 2026",
+  specs: [
+    ["Chip", "Python 3, powered by curiosity"],
+    ["Memory", "4 instruments · 4 languages"],
+    ["Startup disk", "CORE · 100+ users"],
+    ["Graphics", "Origami Pro · 1 sheet, 0 cuts"],
+    ["Serial number", "10K-13175"],
+    ["Battery", "Charging for Khardung La 2027"],
+  ] as [string, string][],
+};
+
 // The banner that slides in when the site opens. Clicking it opens about.txt.
 export const notification = {
   app: "aryan.os",
