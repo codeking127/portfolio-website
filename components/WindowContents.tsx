@@ -3,7 +3,8 @@ import { useState } from "react";
 import { about, animals, codeIntro, instruments, journey, languages, links, moreProjects, musicVideos, origami, projects, running, type Project } from "@/data/profile";
 import { useDesktop, type WinId } from "./desktop-context";
 import Photo from "./Photo";
-import Crane from "./Crane";
+import Crane, { MODELS } from "./Crane";
+import Image from "next/image";
 import Casio from "./Casio";
 import RunChart from "./RunChart";
 import Greeting from "./Greeting";
@@ -243,22 +244,31 @@ export function Languages() {
 
 export function Origami() {
   const [signal, setSignal] = useState(0);
+  const { origami: current, setOrigami } = useDesktop();
   return (
     <>
       <h3>{origami.title}</h3>
-      <Crane foldAfter={700} toggleSignal={signal} label="Paper crane that folds and unfolds" />
+      <Crane model={current} foldAfter={700} toggleSignal={signal} />
       <div className="btnrow">
         <button className="pbtn" onClick={() => setSignal((s) => s + 1)}>Unfold / fold</button>
       </div>
       <div className="gal">
         {origami.photos.map((p) => (
           <figure key={p.src}>
-            <Photo {...p} sizes="160px" />
+            {/* clicking a photo refolds the paper (here and on the desktop) into that model */}
+            <button
+              className={`pick ${current === p.model ? "on" : ""}`}
+              aria-pressed={current === p.model}
+              aria-label={`Fold the paper into a ${MODELS[p.model].name}`}
+              onClick={() => setOrigami(p.model)}
+            >
+              <Image src={p.src} alt={p.alt} width={p.w} height={p.h} sizes="160px" />
+            </button>
             <figcaption>{p.short}</figcaption>
           </figure>
         ))}
       </div>
-      <p className="muted" style={{ margin: "8px 0 0", textAlign: "center" }}>Tap a photo to unfold it.</p>
+      <p className="muted" style={{ margin: "8px 0 0", textAlign: "center" }}>Tap a photo to fold the paper into that model.</p>
     </>
   );
 }

@@ -32,7 +32,7 @@ export default function MenuBar({ onAbout, onMess, onTidy, onFoldCrane, onChime,
     { label: "About This Mac", run: onAbout },
     { label: "Make a Mess", hint: "opens everything", run: onMess },
     { label: "Tidy Up", hint: "closes everything", run: onTidy },
-    { label: "Fold the Crane", run: onFoldCrane },
+    { label: "Fold the Origami", run: onFoldCrane },
     { label: "Play Chime", run: onChime },
     { label: "Shut Down…", run: onShutDown },
   ];

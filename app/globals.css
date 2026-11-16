@@ -413,6 +413,10 @@ img { max-width: 100%; }
 .gal figure { margin: 0; }
 .gal img { width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 8px; display: block; transition: transform .3s; }
 .gal img:hover { transform: scale(1.04) rotate(-1.5deg); }
+/* origami photos are buttons that refold the paper model; the current one gets a ring */
+.pick { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 9px; transition: box-shadow .2s; }
+.pick.on { box-shadow: 0 0 0 2px var(--win), 0 0 0 4px var(--accent); }
+.pick:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .gal figcaption { font-size: 11px; color: var(--ink-3); text-align: center; margin-top: 4px; }
 
 /* journey */

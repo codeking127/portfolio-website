@@ -303,13 +303,15 @@ export const languages = {
   learning: ["日本語 · Japanese", "Français · French"],
 };
 
+// Each photo is one of my real folds. Clicking it refolds the paper model on the site into that shape
+// (model: "crane" | "flower" | "bunny").
 export const origami = {
   title: "One sheet, no cuts",
   photos: [
-    { src: "/assets/origami-crane.jpg", alt: "Blue paper crane", cap: "Crane, folded from one square sheet.", short: "Crane", w: 720, h: 542 },
-    { src: "/assets/origami-flower.jpg", alt: "Yellow eight-petal paper flower", cap: "Eight-petal flower.", short: "Eight-petal flower", w: 600, h: 797 },
-    { src: "/assets/origami-bunny.jpg", alt: "Paper flower and bunny next to a bamboo flute", cap: "Bunny and flower, with my flute in the corner.", short: "Bunny + my flute", w: 720, h: 542 },
-  ],
+    { model: "crane", src: "/assets/origami-crane.jpg", alt: "Blue paper crane", short: "Crane", w: 720, h: 542 },
+    { model: "flower", src: "/assets/origami-flower.jpg", alt: "Yellow eight-petal paper flower", short: "Eight-petal flower", w: 600, h: 797 },
+    { model: "bunny", src: "/assets/origami-bunny.jpg", alt: "Yellow paper rabbit next to a bamboo flute", short: "Rabbit", w: 720, h: 542 },
+  ] as const,
 };
 
 export const animals = {

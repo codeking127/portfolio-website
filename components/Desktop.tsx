@@ -6,7 +6,7 @@ import { DesktopContext, type DesktopApi, type PhotoInfo, type WinId } from "./d
 import Window, { type WinState } from "./Window";
 import Dock from "./Dock";
 import LoginNotification from "./LoginNotification";
-import Crane from "./Crane";
+import Crane, { MODELS, type ModelId } from "./Crane";
 import MenuBar from "./MenuBar";
 import AboutThisMac from "./AboutThisMac";
 import ShutDown from "./ShutDown";
@@ -42,6 +42,7 @@ export default function Desktop() {
   const [macOpen, setMacOpen] = useState(false); // "About This Mac"
   const [asleep, setAsleep] = useState(false); // "Shut Down…"
   const [craneSignal, setCraneSignal] = useState(0);
+  const [origami, setOrigami] = useState<ModelId>("crane");
   const zTop = useRef(20);
   const deskRef = useRef<HTMLElement>(null);
   const winsRef = useRef(wins);
@@ -98,8 +99,8 @@ export default function Desktop() {
   }, [close]);
 
   const api: DesktopApi = useMemo(
-    () => ({ open, close, openPhoto, isOpen: (id) => wins[id].status !== "closed" }),
-    [open, close, openPhoto, wins],
+    () => ({ open, close, openPhoto, isOpen: (id) => wins[id].status !== "closed", origami, setOrigami }),
+    [open, close, openPhoto, wins, origami],
   );
 
   const content: Record<Exclude<WinId, "photo">, React.ReactNode> = {
@@ -146,8 +147,8 @@ export default function Desktop() {
         </div>
 
         <div className="craneWrap">
-          <Crane toggleSignal={craneSignal} />
-          <div className="cap">Click the crane</div>
+          <Crane model={origami} toggleSignal={craneSignal} />
+          <div className="cap">Click the {MODELS[origami].name}</div>
         </div>
 
         {IDS.filter((id): id is Exclude<WinId, "photo"> => id !== "photo").map((id) => (

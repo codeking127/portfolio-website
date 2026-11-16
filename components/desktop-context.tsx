@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext } from "react";
+import type { ModelId } from "./Crane";
 
 export type WinId = "about" | "code" | "music" | "run" | "lang" | "origami" | "journey" | "animals" | "photo";
 
@@ -10,6 +11,9 @@ export type DesktopApi = {
   close: (id: WinId) => void;
   openPhoto: (p: PhotoInfo) => void;
   isOpen: (id: WinId) => boolean;
+  /** the origami shown on the desktop and in the Origami window */
+  origami: ModelId;
+  setOrigami: (m: ModelId) => void;
 };
 
 export const DesktopContext = createContext<DesktopApi | null>(null);
