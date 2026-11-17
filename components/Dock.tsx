@@ -3,7 +3,7 @@ import { links } from "@/data/profile";
 import { useDesktop, type WinId } from "./desktop-context";
 import LangIcon from "./LangIcon";
 
-const APPS: { id: WinId; label: string; bg: string; icon: React.ReactNode }[] = [
+export const APPS: { id: WinId; label: string; bg: string; icon: React.ReactNode }[] = [
   {
     id: "about", label: "About", bg: "#f7f3ea",
     icon: <svg viewBox="0 0 24 24" fill="none" stroke="#3b55d9" strokeWidth="1.8"><circle cx="12" cy="9" r="4" /><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" /></svg>,
@@ -38,6 +38,13 @@ const APPS: { id: WinId; label: string; bg: string; icon: React.ReactNode }[] = 
   },
 ];
 
+// LinkedIn and GitHub are real <a> links, so they always open in a new tab
+const LINKS = [
+  { label: "LinkedIn", href: links.linkedin, bg: "#0a66c2", icon: <svg viewBox="0 0 24 24" fill="#fff"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.2c0-1.24-.02-2.84-1.73-2.84-1.73 0-2 1.35-2 2.75V21h-4z" /></svg> },
+  { label: "GitHub", href: links.github, bg: "#16181d", icon: <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.6 9.6 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z" /></svg> },
+];
+
+/** The Mac-style dock along the bottom (laptops and tablets). */
 export default function Dock() {
   const { open, isOpen } = useDesktop();
   return (
@@ -49,15 +56,33 @@ export default function Dock() {
         </button>
       ))}
       <span className="sep" />
-      {/* external links are real <a> tags, so they always open (the old mockup used a script, which the preview frame blocked) */}
-      <a className="app" href={links.linkedin} target="_blank" rel="noopener noreferrer" style={{ background: "#0a66c2" }} aria-label="LinkedIn">
-        <svg viewBox="0 0 24 24" fill="#fff"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.2c0-1.24-.02-2.84-1.73-2.84-1.73 0-2 1.35-2 2.75V21h-4z" /></svg>
-        <span className="tip">LinkedIn</span>
-      </a>
-      <a className="app" href={links.github} target="_blank" rel="noopener noreferrer" style={{ background: "#16181d" }} aria-label="GitHub">
-        <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.6 9.6 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z" /></svg>
-        <span className="tip">GitHub</span>
-      </a>
+      {LINKS.map((l) => (
+        <a key={l.label} className="app" href={l.href} target="_blank" rel="noopener noreferrer" style={{ background: l.bg }} aria-label={l.label}>
+          {l.icon}
+          <span className="tip">{l.label}</span>
+        </a>
+      ))}
+    </nav>
+  );
+}
+
+/** Phones: the same apps as a home-screen grid with names under the icons, instead of a sideways-scrolling dock. */
+export function AppGrid() {
+  const { open } = useDesktop();
+  return (
+    <nav className="appgrid" aria-label="Apps">
+      {APPS.map((a) => (
+        <button key={a.id} className="gapp" onClick={() => open(a.id)}>
+          <span className="gicon" style={{ background: a.bg }}>{a.icon}</span>
+          {a.label}
+        </button>
+      ))}
+      {LINKS.map((l) => (
+        <a key={l.label} className="gapp" href={l.href} target="_blank" rel="noopener noreferrer">
+          <span className="gicon" style={{ background: l.bg }}>{l.icon}</span>
+          {l.label}
+        </a>
+      ))}
     </nav>
   );
 }

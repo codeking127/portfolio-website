@@ -95,6 +95,24 @@ img { max-width: 100%; }
 .craneWrap { position: absolute; right: max(150px, 16vw); top: 16%; width: min(360px, 30vw); text-align: center; z-index: 1; }
 .craneWrap svg { width: 100%; display: block; cursor: pointer; filter: drop-shadow(0 14px 18px rgba(30, 90, 140, .2)); }
 .cap { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+/* hovering the paper model: it lifts off, opens flat in the air, then drops back folded as the next model */
+.hopper.hop { animation: hop 2.2s cubic-bezier(.3, .7, .3, 1) both; }
+@keyframes hop {
+  0% { transform: none; }
+  20% { transform: translateY(-34px) rotate(-3deg); }
+  52% { transform: translateY(-40px) rotate(2deg); }
+  70% { transform: translateY(0) scale(1.05, .93); }
+  80% { transform: translateY(-8px) scale(.98, 1.02); }
+  90% { transform: translateY(0); }
+  100% { transform: none; }
+}
+.models { display: flex; justify-content: center; gap: 6px; margin: 6px 0 6px; }
+.models button {
+  border: 1px solid var(--line); background: color-mix(in srgb, var(--win) 60%, transparent); color: var(--ink-2); border-radius: 999px;
+  padding: 3px 11px; font-size: 12px; cursor: pointer; text-transform: capitalize; transition: background .2s, color .2s, transform .2s;
+}
+.models button:hover { transform: translateY(-2px); color: var(--ink); }
+.models button.on { background: var(--crane-3); border-color: var(--crane-3); color: #fff; }
 
 .icons { position: absolute; right: max(20px, env(safe-area-inset-right, 0px)); top: 24px; display: grid; gap: 10px; z-index: 1; }
 .icon { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 84px; background: none; border: 0; cursor: pointer; padding: 6px 2px; border-radius: 8px; font-size: 12px; }
@@ -108,7 +126,11 @@ img { max-width: 100%; }
 .win {
   position: absolute; z-index: 10; width: 420px; max-width: calc(100vw - 32px); background: var(--win); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden;
   transform-style: preserve-3d;
+  /* never taller than the space between the menu bar and the dock; the contents scroll instead */
+  display: flex; flex-direction: column; max-height: calc(100dvh - 30px - 112px);
 }
+.win > .wbody { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.bar .back { display: none; }
 .bar {
   display: flex; align-items: center; height: 32px; padding: 0 12px; gap: 8px; background: var(--win-bar); border-bottom: 1px solid var(--line); user-select: none; cursor: grab;
   font-size: 13px; font-weight: 600; color: var(--ink-2); touch-action: none;
@@ -299,9 +321,8 @@ img { max-width: 100%; }
 .mvids video { width: 100%; height: 100%; object-fit: cover; }
 
 /* about */
-/* opens below the crane; wider so the text stays short, and scrolls inside on short screens */
+/* wider so the text lines stay short */
 .win.w-about { width: 560px; }
-.w-about .wbody { max-height: max(240px, calc(100vh - 500px)); overflow-y: auto; }
 .w-about .wbody p { line-height: 1.7; color: var(--ink-2); }
 /* a folded-paper cover band across the top, in the crane's blues */
 .w-about .cover {
@@ -626,10 +647,34 @@ img { max-width: 100%; }
   .craneWrap { max-width: 300px; margin: 0 auto; }
   .icons { display: none; }
   .menubar .menus { display: none; }
-  .win, .win.w-run, .win.w-journey, .win.w-photo {
-    position: fixed; left: max(12px, env(safe-area-inset-left, 0px)) !important; right: max(12px, env(safe-area-inset-right, 0px)); width: auto; max-width: none;
-    top: calc(42px + env(safe-area-inset-top, 0px)) !important; max-height: calc(100% - 140px); overflow: auto;
+  /* windows open as full-screen sheets that slide up from the bottom, like an iPhone app */
+  .win, .win.w-run, .win.w-journey, .win.w-photo, .win.w-about, .win.w-code {
+    position: fixed; left: 0 !important; right: 0; top: calc(30px + env(safe-area-inset-top, 0px)) !important; bottom: 0;
+    width: auto; max-width: none; max-height: none; border-radius: 16px 16px 0 0;
   }
+  .win > .wbody { padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
+  .win::after { display: none; }
+  .win.unfold, .win.w-about.unfold, .win.w-photo.unfold, .win.w-origami.unfold, .win.w-code.unfold, .win.w-music.unfold,
+  .win.w-run.unfold, .win.w-lang.unfold, .win.w-journey.unfold, .win.w-animals.unfold { animation: sheetUp .42s cubic-bezier(.2, .85, .25, 1) both; }
+  .win.folding, .win.w-about.folding, .win.w-photo.folding, .win.w-origami.folding { animation: sheetDown .32s cubic-bezier(.5, 0, .9, .4) both; }
+  .bar { height: 48px; cursor: default; padding: 0 8px; position: relative; }
+  .bar .lights { display: none; }
+  .bar .back {
+    display: flex; align-items: center; gap: 4px; border: 0; background: none; color: var(--accent); font-size: 16px; font-weight: 500;
+    padding: 8px 10px; margin-left: -2px; cursor: pointer; border-radius: 8px; z-index: 1;
+  }
+  .bar .back svg { width: 10px; height: 17px; }
+  .bar .t { position: absolute; left: 0; right: 0; text-align: center; margin: 0; padding: 0 96px; font-size: 15px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+  /* home screen: apps in a grid with their names, no sideways-scrolling dock */
+  .appgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px 8px; padding: 6px 2px 0; }
+  .gapp { display: flex; flex-direction: column; align-items: center; gap: 6px; background: none; border: 0; padding: 0; cursor: pointer; font-size: 12px; color: var(--ink); text-decoration: none; }
+  .gicon { width: 60px; height: 60px; border-radius: 15px; display: grid; place-items: center; box-shadow: 0 6px 16px -8px rgba(0, 0, 0, .45); transition: transform .15s; }
+  .gapp:active .gicon { transform: scale(.9); }
+  .gicon svg { width: 30px; height: 30px; }
+  .gicon .lang-icon { transform: scale(1.15); }
+  .desk { padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px)); }
+  /* the login notification drops in under the menu bar across the full width */
+  .notif { top: calc(36px + env(safe-area-inset-top, 0px)); left: 10px; right: 10px; width: auto; }
   .greet { font-size: 44px; }
   .runtop { grid-template-columns: minmax(0, 1fr) 96px; gap: 10px; }
   .runtop h3 { font-size: 21px; }
@@ -639,20 +684,8 @@ img { max-width: 100%; }
   .dock { overflow-x: auto; }
   .win.w-about, .win.w-code { width: auto; }
   .glance { grid-template-columns: 1fr; }
-  .stop-tag {
-  position: absolute; z-index: 2; transform: translateY(-50%); white-space: nowrap;
-  background: #1e3a8a; color: #fff; font-size: 12.5px; font-weight: 600; padding: 5px 10px; border-radius: 8px;
-  box-shadow: 0 6px 16px -6px rgba(0, 0, 0, .45); animation: tagIn .35s cubic-bezier(.2, 1.3, .4, 1) both;
-}
-.stop-tag::before { content: ""; position: absolute; left: -5px; top: 50%; width: 10px; height: 10px; background: #1e3a8a; transform: translateY(-50%) rotate(45deg); }
-@keyframes tagIn { from { opacity: 0; transform: translate(-6px, -50%) scale(.9); } }
-.replay {
-  position: absolute; top: 10px; right: 10px; z-index: 2; border: 0; cursor: pointer; font-size: 12px; font-weight: 600;
-  background: rgba(255, 255, 255, .92); color: #1e3a8a; padding: 5px 10px; border-radius: 999px; box-shadow: 0 0 0 1px rgba(30, 58, 138, .2);
-}
-.replay:hover, .replay:focus-visible { background: #1e3a8a; color: #fff; outline: none; }
-.jmap-hint { white-space: normal; text-align: center; width: max-content; max-width: 90%; }
-  /* phones: keep the menu bar to logo, name and time (LinkedIn is in the dock) */
+  .jmap-hint { white-space: normal; text-align: center; width: max-content; max-width: 90%; }
+  /* phones: keep the menu bar to logo, name and time (LinkedIn is on the home screen) */
   .menubar .right a, .menubar .right span:first-of-type { display: none; }
   .w-about .wbody { max-height: none; }
   .w-code .wbody { max-height: none; padding: 18px; }
@@ -660,9 +693,36 @@ img { max-width: 100%; }
   .fside { order: -1; }
   .mrow { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 }
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes sheetDown { to { transform: translateY(100%); } }
 @media (min-width: 901px) and (max-width: 1100px) {
   .skills { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .win.unfold, .win.folding, .win.unfold::after, .win.folding::after { animation-duration: .01s !important; }
+  .hopper.hop { animation: none; }
+}
+
+/* ── touch screens ─────────────────────────────────────────────
+   Phones have no hover, so the hover effects play while a finger is pressing instead:
+   app icons spring up like the dock, links fill in, cards and photos lift. */
+@media (hover: none) {
+  .gicon { transition: transform .22s cubic-bezier(.3, 1.6, .5, 1), box-shadow .22s; }
+  .gapp:active .gicon { transform: translateY(-8px) scale(1.12); box-shadow: 0 14px 22px -10px rgba(0, 0, 0, .55); }
+  .gapp { -webkit-tap-highlight-color: transparent; }
+  .ilink:active { color: #fff; background-size: 100% 100%; border-radius: 2px; }
+  .ilink, .models button, .chip, .pick, .pcard, .mrow, .back { -webkit-tap-highlight-color: transparent; }
+  .models button:active { transform: translateY(-3px) scale(1.06); color: var(--ink); }
+  .chip { transition: transform .15s; }
+  .chip:active { transform: translateY(-2px) scale(1.06); }
+  .pick:active img, .gal img:active { transform: scale(1.04) rotate(-1.5deg); }
+  .medals img { transition: transform .3s; }
+  .medals figure:active img { transform: scale(1.04); }
+  .pcard { transition: transform .2s, box-shadow .2s; }
+  .pcard:active { transform: translateY(-3px); box-shadow: 0 16px 30px -18px rgba(0, 0, 0, .5); }
+  .mrow:active { background: var(--win-bar); }
+  .runs > div:active i { opacity: 1; }
+  .bar .back:active { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+  /* the paper model gives a little nudge the moment it's touched, before it lifts off */
+  .hopper:active:not(.hop) { transform: scale(.96); transition: transform .12s; }
 }

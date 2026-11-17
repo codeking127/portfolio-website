@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 export type WinStatus = "closed" | "open" | "folding";
 
@@ -27,9 +27,29 @@ type Props = {
 };
 
 const isPhone = () => window.matchMedia("(max-width: 900px)").matches;
+// room kept free at the bottom of the screen for the dock (its height plus a gap)
+const DOCK_SPACE = 96;
 
 export default function Window({ id, title, state, className = "", onClose, onFocus, onFolded, onMove, onToggleMax, children }: Props) {
   const ref = useRef<HTMLElement>(null);
+
+  // On laptops, keep a newly opened window fully on screen: it must clear the dock at the bottom and the
+  // right edge, so tall windows (like Runs) never open half-hidden. Its contents scroll inside instead.
+  useLayoutEffect(() => {
+    const win = ref.current;
+    const desk = win?.parentElement;
+    if (!win || !desk || isPhone() || state.max || state.status !== "open") return;
+    const bottom = window.innerHeight - 30 - DOCK_SPACE; // visible desktop height above the dock
+    let top = win.offsetTop;
+    let left = win.offsetLeft;
+    if (top + win.offsetHeight > bottom) top = Math.max(8, bottom - win.offsetHeight);
+    if (left + win.offsetWidth > desk.clientWidth - 8) left = Math.max(8, desk.clientWidth - 8 - win.offsetWidth);
+    if (left < 8) left = 8;
+    if (top !== win.offsetTop || left !== win.offsetLeft) onMove(left, top);
+    // only when the window (re)appears; dragging afterwards is up to the visitor
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.nonce, state.status]);
+
   if (state.status === "closed") return null;
 
   const anim = state.status === "folding" ? "folding" : state.animate ? "unfold" : "";
@@ -80,6 +100,11 @@ export default function Window({ id, title, state, className = "", onClose, onFo
           if (!(e.target as HTMLElement).closest("button")) onToggleMax();
         }}
       >
+        {/* phones: windows are full-screen sheets, closed with a big back button instead of tiny traffic lights */}
+        <button className="back" onClick={onClose} aria-label={`Close ${title}`}>
+          <svg viewBox="0 0 12 20" aria-hidden="true"><path d="M10 2L2 10l8 8" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          Home
+        </button>
         <div className="lights">
           <button aria-label={`Close ${title}`} title="Close" onClick={onClose} />
           <button aria-label={`Minimise ${title}`} title="Minimise" onClick={onClose} />

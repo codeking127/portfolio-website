@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 
-const HINT = "Hover a bar to see the run. Green is the 10K.";
+const HINT = "Hover or tap a bar to see the run. Green is the 10K.";
 
 export default function RunChart({ runs }: { runs: [string, number, string, string][] }) {
   const [tip, setTip] = useState(HINT);

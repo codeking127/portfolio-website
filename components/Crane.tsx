@@ -134,9 +134,11 @@ type Props = {
   /** change this number to toggle fold/unfold from outside */
   toggleSignal?: number;
   label?: string;
+  /** if given, a click/tap calls this instead of unfolding the model */
+  onActivate?: () => void;
 };
 
-export default function Crane({ model = "crane", foldAfter = 500, toggleSignal = 0, label }: Props) {
+export default function Crane({ model = "crane", foldAfter = 500, toggleSignal = 0, label, onActivate }: Props) {
   const [shown, setShown] = useState<ModelId>(model);
   const polys = useRef<(SVGPolygonElement | null)[]>([]);
   const state = useRef(0);
@@ -215,7 +217,7 @@ export default function Crane({ model = "crane", foldAfter = 500, toggleSignal =
       viewBox="0 0 200 140"
       role="img"
       aria-label={label ?? `Paper ${m.name}. Click to unfold it into a square and fold it back.`}
-      onClick={toggle}
+      onClick={onActivate ?? toggle}
     >
       <ellipse cx="100" cy="128" rx="62" ry="4.5" fill={m.shadow} />
       {m.order.map((i) => (

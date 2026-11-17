@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { intro } from "@/data/profile";
 import { DesktopContext, type DesktopApi, type PhotoInfo, type WinId } from "./desktop-context";
 import Window, { type WinState } from "./Window";
-import Dock from "./Dock";
+import Dock, { AppGrid } from "./Dock";
 import LoginNotification from "./LoginNotification";
 import Crane, { MODELS, type ModelId } from "./Crane";
 import MenuBar from "./MenuBar";
@@ -43,6 +43,9 @@ export default function Desktop() {
   const [asleep, setAsleep] = useState(false); // "Shut Down…"
   const [craneSignal, setCraneSignal] = useState(0);
   const [origami, setOrigami] = useState<ModelId>("crane");
+  const [hopping, setHopping] = useState(false); // the paper model is lifting off and dropping back down
+  const [phone, setPhone] = useState(false);
+  const hopBusy = useRef(false);
   const zTop = useRef(20);
   const deskRef = useRef<HTMLElement>(null);
   const winsRef = useRef(wins);
@@ -91,6 +94,52 @@ export default function Desktop() {
   };
   // "Tidy up": close everything that's open
   const closeAll = () => IDS.forEach((id) => { if (winsRef.current[id].status === "open") close(id); });
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 900px)");
+    const sync = () => setPhone(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  // Hovering the paper model (or tapping it on a phone): it lifts off, opens flat in the air and drops back
+  // down folded into the next model, so visitors see there's a crane, a flower and a rabbit.
+  const hop = useCallback((to?: ModelId) => {
+    if (hopBusy.current) return;
+    const ids = Object.keys(MODELS) as ModelId[];
+    const next = to ?? ids[(ids.indexOf(origami) + 1) % ids.length];
+    if (next === origami) return;
+    hopBusy.current = true;
+    setHopping(true);
+    setOrigami(next);
+    // unfolding (0.8s) + folding the new model (1.4s), plus a beat before it can hop again
+    setTimeout(() => { hopBusy.current = false; setHopping(false); }, 2600);
+  }, [origami]);
+
+  // Phones have no hover, so while the paper model is on screen it hops to the next model by itself every
+  // few seconds, until the visitor taps it themselves (then they know it's interactive).
+  const hopRef = useRef(hop);
+  hopRef.current = hop;
+  const craneRef = useRef<HTMLDivElement>(null);
+  const touched = useRef(false);
+  useEffect(() => {
+    // iOS Safari only shows :active (the touch versions of the hover effects) once a touch listener exists
+    const noop = () => {};
+    document.addEventListener("touchstart", noop, { passive: true });
+    return () => document.removeEventListener("touchstart", noop);
+  }, []);
+  useEffect(() => {
+    const el = craneRef.current;
+    if (!phone || !el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let timer = 0;
+    const io = new IntersectionObserver(([e]) => {
+      clearInterval(timer);
+      if (e.isIntersecting && !touched.current) timer = window.setInterval(() => !touched.current && hopRef.current(), 6000);
+    }, { threshold: 0.6 });
+    io.observe(el);
+    return () => { io.disconnect(); clearInterval(timer); };
+  }, [phone]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") close("photo"); };
@@ -146,10 +195,27 @@ export default function Desktop() {
           </p>
         </div>
 
-        <div className="craneWrap">
-          <Crane model={origami} toggleSignal={craneSignal} />
-          <div className="cap">Click the {MODELS[origami].name}</div>
+        <div className="craneWrap" ref={craneRef}>
+          <div
+            className={`hopper ${hopping ? "hop" : ""}`}
+            onMouseEnter={() => !phone && hop()}
+            onAnimationEnd={() => setHopping(false)}
+          >
+            <Crane model={origami} toggleSignal={craneSignal} onActivate={phone ? () => { touched.current = true; hop(); } : undefined} />
+          </div>
+          {/* the three models; the one on show is highlighted, and each can be picked */}
+          <div className="models" role="group" aria-label="Origami models">
+            {(Object.keys(MODELS) as ModelId[]).map((id) => (
+              <button key={id} className={id === origami ? "on" : ""} aria-pressed={id === origami} onClick={() => { touched.current = true; hop(id); }}>
+                {MODELS[id].name}
+              </button>
+            ))}
+          </div>
+          <div className="cap">{phone ? "Tap it to fold the next one" : "Hover to refold · click to unfold"}</div>
         </div>
+
+        {/* phones get a home-screen grid of apps instead of the dock */}
+        {phone && <AppGrid />}
 
         {IDS.filter((id): id is Exclude<WinId, "photo"> => id !== "photo").map((id) => (
           <Window
@@ -187,7 +253,7 @@ export default function Desktop() {
         </Window>
       </main>
 
-      <Dock />
+      {!phone && <Dock />}
       <LoginNotification onOpen={() => open("about")} />
       {macOpen && (
         <AboutThisMac
